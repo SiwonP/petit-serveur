@@ -1,5 +1,0 @@
-/Users/simon/Documents/projects/test_server/build/CMakeFiles/rebuild_cache.dir
-/Users/simon/Documents/projects/test_server/build/CMakeFiles/edit_cache.dir
-/Users/simon/Documents/projects/test_server/build/src/CMakeFiles/rebuild_cache.dir
-/Users/simon/Documents/projects/test_server/build/src/CMakeFiles/edit_cache.dir
-/Users/simon/Documents/projects/test_server/build/src/CMakeFiles/test_server.dir

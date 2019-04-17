@@ -1,1 +1,0 @@
-/Library/Developer/CommandLineTools/usr/bin/cc  -Wl,-search_paths_first -Wl,-headerpad_max_install_names  CMakeFiles/test_server.dir/server.c.o CMakeFiles/test_server.dir/http.c.o CMakeFiles/test_server.dir/file.c.o  -o test_server 
