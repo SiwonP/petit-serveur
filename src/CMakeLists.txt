@@ -1,5 +1,5 @@
 add_executable(
-test_server
+petitserveur
 server.c
 http.c
 file.c
