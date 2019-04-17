@@ -13,7 +13,7 @@
 
 #define MAX_CONTENT_TYPE_SIZE 64
 #define MAX_FORMAT_SIZE 8
-#define NUMBER_FORMATS 12
+#define NUMBER_FORMATS 25
 
 
 /**

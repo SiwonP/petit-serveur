@@ -9,28 +9,56 @@ char content_types[][MAX_CONTENT_TYPE_SIZE] = {
     "text/css",
     "text/csv",
     "text/html",
+    "text/html",
     "image/gif",
     "image/x-icon",
     "image/jpeg",
+    "image/jpeg",
     "image/png",
     "image/tiff",
+    "image/tiff",
+    "image/svg+xml",
+    "image/webp",
     "application/javascript",
+    "application/typescript",
     "application/json",
-    "application/pdf"
+    "application/pdf",
+    "application/x-tar",
+    "application/xml",
+    "application/zip",
+    "application/java-archive",
+    "font/otf",
+    "font/ttf",
+    "font/woff",
+    "font/woff2"
 };
 
 char format_extensions[NUMBER_FORMATS][MAX_FORMAT_SIZE] = {
     "css",
     "csv",
     "html",
+    "htm",
     "gif",
     "ico",
     "jpg",
+    "jepg",
     "png",
     "tif",
+    "tiff",
+    "svg",
+    "webp",
     "js",
+    "ts",
     "json",
-    "pdf"
+    "pdf",
+    "tar",
+    "xml",
+    "zip",
+    "jar",
+    "otf",
+    "ttf",
+    "woff",
+    "woff2"
 };
 
 char *mime_type(char *format)
