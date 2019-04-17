@@ -1,0 +1,121 @@
+\hypertarget{http_8c}{}\section{src/http.c File Reference}
+\label{http_8c}\index{src/http.\+c@{src/http.\+c}}
+{\ttfamily \#include \char`\"{}http.\+h\char`\"{}}\newline
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+char $\ast$ \mbox{\hyperlink{http_8c_a311359cc48cbebaeb3a7a45666bf5b7b}{http\+\_\+header}} (int code, char $\ast$content\+\_\+type, int content\+\_\+length)
+\begin{DoxyCompactList}\small\item\em Construct the header of the http response. \end{DoxyCompactList}\item 
+char $\ast$ \mbox{\hyperlink{http_8c_ac56b5bf9d021ba158cb9620e05dad4f0}{http\+\_\+code}} (int code)
+\begin{DoxyCompactList}\small\item\em Construct the code string containing the integer code and the corresponding string. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{http_8c_a6fdc4e8952227582ee03297e6554222c}{http\+\_\+method}} (char $\ast$request, int fd)
+\begin{DoxyCompactList}\small\item\em Construct the the http response from the http request. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{http_8c_a79bc2490ab441ee93229138d93f2ca97}{http\+\_\+get}} (char $\ast$path, int fd)
+\begin{DoxyCompactList}\small\item\em Read the file from a get request and return the char array containg the file. \end{DoxyCompactList}\item 
+char $\ast$ \mbox{\hyperlink{http_8c_ad046c43aaf474fdac4b6dce838b4114e}{http\+\_\+response}} (char $\ast$header, char $\ast$content, int length)
+\begin{DoxyCompactList}\small\item\em Construction the http response by concatenating the header and the data. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+\begin{DoxyAuthor}{Author}
+Simon Petit 
+\end{DoxyAuthor}
+
+
+\subsection{Function Documentation}
+\mbox{\Hypertarget{http_8c_ac56b5bf9d021ba158cb9620e05dad4f0}\label{http_8c_ac56b5bf9d021ba158cb9620e05dad4f0}} 
+\index{http.\+c@{http.\+c}!http\+\_\+code@{http\+\_\+code}}
+\index{http\+\_\+code@{http\+\_\+code}!http.\+c@{http.\+c}}
+\subsubsection{\texorpdfstring{http\+\_\+code()}{http\_code()}}
+{\footnotesize\ttfamily char$\ast$ http\+\_\+code (\begin{DoxyParamCaption}\item[{int}]{code }\end{DoxyParamCaption})}
+
+
+
+Construct the code string containing the integer code and the corresponding string. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em code} & The http code.\\
+\hline
+\end{DoxyParams}
+return The concatenation of the code and its translation. \mbox{\Hypertarget{http_8c_a79bc2490ab441ee93229138d93f2ca97}\label{http_8c_a79bc2490ab441ee93229138d93f2ca97}} 
+\index{http.\+c@{http.\+c}!http\+\_\+get@{http\+\_\+get}}
+\index{http\+\_\+get@{http\+\_\+get}!http.\+c@{http.\+c}}
+\subsubsection{\texorpdfstring{http\+\_\+get()}{http\_get()}}
+{\footnotesize\ttfamily int http\+\_\+get (\begin{DoxyParamCaption}\item[{char $\ast$}]{path,  }\item[{int}]{fd }\end{DoxyParamCaption})}
+
+
+
+Read the file from a get request and return the char array containg the file. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em path} & The path of the file requested. \\
+\hline
+\mbox{\tt in}  & {\em fd} & The file descriptor of the socket where to send the response.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The result from the write function on the socket fd. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{http_8c_a311359cc48cbebaeb3a7a45666bf5b7b}\label{http_8c_a311359cc48cbebaeb3a7a45666bf5b7b}} 
+\index{http.\+c@{http.\+c}!http\+\_\+header@{http\+\_\+header}}
+\index{http\+\_\+header@{http\+\_\+header}!http.\+c@{http.\+c}}
+\subsubsection{\texorpdfstring{http\+\_\+header()}{http\_header()}}
+{\footnotesize\ttfamily char$\ast$ http\+\_\+header (\begin{DoxyParamCaption}\item[{int}]{code,  }\item[{char $\ast$}]{content\+\_\+type,  }\item[{int}]{content\+\_\+length }\end{DoxyParamCaption})}
+
+
+
+Construct the header of the http response. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em code} & The http code. \\
+\hline
+\mbox{\tt in}  & {\em content\+\_\+type} & The type of the content, according to http standard. \\
+\hline
+\mbox{\tt in}  & {\em content\+\_\+length} & the length of the content to be send.\\
+\hline
+\end{DoxyParams}
+return The string containing the header. \mbox{\Hypertarget{http_8c_a6fdc4e8952227582ee03297e6554222c}\label{http_8c_a6fdc4e8952227582ee03297e6554222c}} 
+\index{http.\+c@{http.\+c}!http\+\_\+method@{http\+\_\+method}}
+\index{http\+\_\+method@{http\+\_\+method}!http.\+c@{http.\+c}}
+\subsubsection{\texorpdfstring{http\+\_\+method()}{http\_method()}}
+{\footnotesize\ttfamily int http\+\_\+method (\begin{DoxyParamCaption}\item[{char $\ast$}]{request,  }\item[{int}]{fd }\end{DoxyParamCaption})}
+
+
+
+Construct the the http response from the http request. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em request} & The raw request from the client. \\
+\hline
+\mbox{\tt in}  & {\em fd} & The file description of the socket where to send the response.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The appropriate http response corresponding to the request. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{http_8c_ad046c43aaf474fdac4b6dce838b4114e}\label{http_8c_ad046c43aaf474fdac4b6dce838b4114e}} 
+\index{http.\+c@{http.\+c}!http\+\_\+response@{http\+\_\+response}}
+\index{http\+\_\+response@{http\+\_\+response}!http.\+c@{http.\+c}}
+\subsubsection{\texorpdfstring{http\+\_\+response()}{http\_response()}}
+{\footnotesize\ttfamily char$\ast$ http\+\_\+response (\begin{DoxyParamCaption}\item[{char $\ast$}]{header,  }\item[{char $\ast$}]{content,  }\item[{int}]{length }\end{DoxyParamCaption})}
+
+
+
+Construction the http response by concatenating the header and the data. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em header} & The header of the http response. \\
+\hline
+\mbox{\tt in}  & {\em content} & The content of the http response. \\
+\hline
+\mbox{\tt in}  & {\em length} & The length of the content.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The char array of the response to send. 
+\end{DoxyReturn}
