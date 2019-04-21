@@ -9,7 +9,7 @@ char *http_header(int code, char *content_type,
         int content_length)
 {
     time_t current_time = time(NULL);
-    char *code_s; 
+    char *code_s;
     char *length_s = (char *)calloc(8, sizeof(char));
     char *date = (char *)calloc(32, sizeof(char));
     char *header = (char *)calloc(256, sizeof(char));
@@ -73,7 +73,6 @@ int http_method(char *request, int fd)
      * Extract the mime type out of the previous format.
      */
     mime = mime_type(format);
-    
     printf("%s %s %s %s\n\n", method, path, format, mime);
 
     if (strcmp(method, "GET") == 0) {
