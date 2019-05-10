@@ -13,7 +13,6 @@
 
 #include "file.h"
 
-
 /**
  * @brief Construct the header of the http response.
  *
@@ -27,7 +26,7 @@ char *http_header(int code, char *content_type,
         int content_length);
 
 /**
- * @brief Construct the code string containing the integer code and the 
+ * @brief Construct the code string containing the integer code and the
  * corresponding string.
  *
  * @param[in] code The http code.

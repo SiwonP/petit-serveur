@@ -115,8 +115,6 @@ int http_get(char *path, char *mime, int fd)
         header = http_header(404, "text/plain", length);
     }
 
-
-
     write_err = write(fd, header, strlen(header));
     write_err = write(fd, content, length);
 
