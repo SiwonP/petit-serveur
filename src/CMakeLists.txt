@@ -3,4 +3,5 @@ petitserveur
 server.c
 http.c
 file.c
+app.c
 )
