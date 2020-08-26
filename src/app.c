@@ -1,66 +1,98 @@
 #include "app.h"
 
-void printf_app(app app)
+void printf_app(App *app)
 {
-  printf("Port : %d\n", app.port);
-  printf("Connection file descriptor : %d\n", app.connfd);
+  printf("Port : %d\n", app->port);
+  printf("Connection file descriptor : %d\n", app->connfd);
 }
 
-app init_app(int port)
+App *init_app(int port)
 {
-  app app;
-  app.port = port;
-  app.connfd = 0;
-  app.servin.sin_family = AF_INET;
-  app.servin.sin_port = htons(port);
-  app.servin.sin_addr.s_addr = INADDR_ANY;
+    App *app;
+    app = malloc(sizeof(struct app));
+    app->port = port;
+    app->connfd = 0;
 
-  memset(app.servin.sin_zero, '\0', sizeof app.servin.sin_zero);
+    struct sockaddr_in *servin, *cliin;
+    servin = malloc(sizeof(struct sockaddr_in));
+    cliin = malloc(sizeof(struct sockaddr_in));
 
-  if((app.serverfd = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
-      perror("In socket");
-      exit(EXIT_FAILURE);
-  }
+    servin->sin_family = AF_INET;
+    servin->sin_port = htons(port);
+    servin->sin_addr.s_addr = INADDR_ANY;
 
-  if((bind(app.serverfd, (struct sockaddr *)&app.servin, sizeof(app.servin))) < 0) {
-      perror("In bind");
-      exit(EXIT_FAILURE);
-  }
+    app->servin = servin;
+    app->cliin = cliin;
 
-  if((listen(app.serverfd, 10)) < 0) {
-      perror("In listen");
-      exit(EXIT_FAILURE);
-  }
+    memset(servin->sin_zero, '\0', sizeof(servin->sin_zero));
+    printf("%d\n", port);
+    /*
+       app.router = (router){ .c = 0, .routes = {0} };
 
-  return app;
+
+*/
+    if((app->serverfd = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
+        perror("In socket");
+        exit(EXIT_FAILURE);
+    }
+
+    int reuse = 1;
+    if (setsockopt(app->serverfd, SOL_SOCKET, SO_REUSEADDR, 
+                (const char*)&reuse, sizeof(reuse)) < 0) {
+        perror("In setsockopt");
+        exit(EXIT_FAILURE);
+    }
+
+
+    if((bind(app->serverfd, (struct sockaddr *)servin, 
+                    sizeof(struct sockaddr_in))) < 0) {
+        perror("In bind");
+        exit(EXIT_FAILURE);
+    }
+
+
+    if((listen(app->serverfd, 10)) < 0) {
+        perror("In listen");
+        exit(EXIT_FAILURE);
+    }
+
+    free(servin);
+    free(cliin);
+
+    return app;
+
 }
 
-void app_get(app app)
+void app_get(App *app, char *path)
 {
-  
+    app->router.routes[app->router.c] = 
+        (route){ .path = path, .method = "GET"};
+    app->router.c++;
 }
 
-void app_listen(app app)
+void app_listen(App *app)
 {
-  while(1) {
-      int size = sizeof(app.servin);
-      printf("\n+++++++ Waiting for new connection ++++++++\n\n");
-      app.connfd = accept(app.serverfd, (struct sockaddr *)&app.servin,(socklen_t*)&size);
+    while(1) {
+        int size = sizeof(app->servin);
+        printf("\n+++++++ Waiting for new connection on port %d++++++++\n\n",
+                app->port);
+        app->connfd = accept(app->serverfd, 
+                (struct sockaddr *)app->servin,(socklen_t*)&size);
 
-      if (app.connfd < 0) {
-          perror("In accept");
-          exit(EXIT_FAILURE);
-      }
+        if (app->connfd < 0) {
+            perror("In accept");
+            exit(EXIT_FAILURE);
+        }
 
-      char buffer[1024] = {0};
-      read(app.connfd, buffer, sizeof(buffer));
+        char buffer[1024] = {0};
+        read(app->connfd, buffer, sizeof(buffer));
 
-      int write_err = -1;
+        int write_err = -1;
 
-      write_err = http_method(buffer, app.connfd);
-      printf("Characters send %d\n", write_err);
+        write_err = http_method(buffer, app->connfd);
+        printf("Characters send %d\n", write_err);
 
-      close(app.connfd);
+        close(app->connfd);
 
-  }
+    }
 }

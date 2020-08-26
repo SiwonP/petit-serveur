@@ -9,19 +9,43 @@
 #include <string.h>
 #include <stdlib.h>
 #include "http.h"
+#include "router.h"
 
+/**
+ * @brief description of the web app.
+ */
 typedef struct app {
-  int port;
-  int connfd;
-  int serverfd;
-  struct sockaddr_in servin;
-  struct sockaddr_in cliin;
-} app;
+    int port;
+    int connfd;
+    int serverfd;
+    struct sockaddr_in *servin;
+    struct sockaddr_in *cliin;
+    router router;
+} App;
 
-void printf_app(app app);
+/**
+ * @brief Print the characteristics of the app.
+ *
+ * @param[in] app The app struct.
+ */
+void printf_app(App *app);
 
-app init_app(int port);
+/**
+ * @brief initiate the app object.
+ *
+ * @param[in] port The port number where the app will be listening.
+ *
+ * @return The app struct.
+ */
+App *init_app(int port);
 
-void app_listen(app app);
+void app_get(App *app, char *path);
+
+/**
+ * @brief Start the server, which make the app listen to the given port.
+ *
+ * @param[in] app The already initiated app struct.
+ */
+void app_listen(App *app);
 
 #endif
