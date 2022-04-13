@@ -18,9 +18,9 @@ typedef struct app {
     int port;
     int connfd;
     int serverfd;
-    struct sockaddr_in *servin;
-    struct sockaddr_in *cliin;
-    router router;
+    struct sockaddr_in servin;
+    struct sockaddr_in cliin;
+    Router_t router;
 } App;
 
 /**
@@ -31,21 +31,22 @@ typedef struct app {
 void printf_app(App *app);
 
 /**
- * @brief initiate the app object.
+ * @brief       initiate the app object.
  *
- * @param[in] port The port number where the app will be listening.
+ * @param[in]   port    The port number where the app will be listening.
  *
- * @return The app struct.
+ * @return      The app struct.
  */
-App *init_app(int port);
+int app_init(App *app, int port);
 
 void app_get(App *app, char *path);
 
 /**
- * @brief Start the server, which make the app listen to the given port.
+ * @brief       Start the server, which make the app listen to the given port.
  *
- * @param[in] app The already initiated app struct.
+ * @param[in]   app     A pointer to an allocated app structure.
+ * @param[in]   port    The port number where the app will be listening.
  */
-void app_listen(App *app);
+void app_listen(App *app, int port);
 
 #endif

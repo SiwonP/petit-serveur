@@ -30,13 +30,12 @@ int main(int argc, char const *argv[])
     int port = 8080;
 
     //test(&printf, "test\n");
-
-    App *app = init_app(port);
+    App app;
     /*
     app_get(app, "test");
     printf("%d\n", app->router.c);
     */
-    app_listen(app);
+    app_listen(&app, port);
 
     return 0;
 }

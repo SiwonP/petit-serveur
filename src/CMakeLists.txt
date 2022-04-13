@@ -1,5 +1,5 @@
 add_executable(
-petitserveur
+famulor
 server.c
 http.c
 file.c

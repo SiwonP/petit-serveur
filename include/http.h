@@ -14,6 +14,17 @@
 
 #include "file.h"
 
+#define LONG_STRING 256
+
+typedef enum HTTP_code {
+        OK = 200,
+        MOVE_PERMANENTLY = 301,
+        BAD_REQUEST = 400,
+        FORBIDDEN = 403,
+        NOT_FOUND = 404,
+        INTERNAL_SERVER_ERROR = 500,
+} HTTP_code_e;
+
 /**
  * @brief Construct the header of the http response.
  *

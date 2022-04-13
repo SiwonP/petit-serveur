@@ -23,7 +23,7 @@
  *
  * @return The mime type standard for http responses.
  */
-char *mime_type(char *format);
+void mime_type(char *format, char *content_type);
 
 /**
  * @brief Compute the length of a file and set back the cursor to the beginning.

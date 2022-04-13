@@ -1,7 +1,12 @@
 /**
- * @file "file.c"
- *
+ * @file file.c
  * @author Simon Petit
+ * @brief 
+ * @version 0.1
+ * @date 2022-04-06
+ * 
+ * @copyright Copyright (c) 2022
+ * 
  */
 #include "file.h"
 
@@ -61,20 +66,20 @@ char format_extensions[NUMBER_FORMATS][MAX_FORMAT_SIZE] = {
     "woff2"
 };
 
-char *mime_type(char *format)
+void mime_type(char *format, char *content_type)
 {
-    int i;
-    char *content_type;
+    unsigned int i;
+
     if (format == NULL) {
-        return "text/html";
+        strcpy(content_type, "text/html");
     } else {
-        for (i = 0; i < NUMBER_FORMATS; i++) {
+        for (i = 0u; i < NUMBER_FORMATS; i++) {
             if (strcmp(format, format_extensions[i]) == 0) {
-                content_type = content_types[i];
+                strcpy(content_type, content_types[i]);
             }
         }
     }
-    return content_type;
+
 }
 
 

@@ -1,7 +1,12 @@
 /**
  * @file http.c
- *
  * @author Simon Petit
+ * @brief 
+ * @version 0.1
+ * @date 2022-04-06
+ * 
+ * @copyright Copyright (c) 2022
+ * 
  */
 #include "http.h"
 
@@ -35,32 +40,34 @@ char *http_header(int code, char *content_type,
 
 char *http_code(int code)
 {
-    char *code_s = (char *)calloc(64, sizeof(char));
-    sprintf(code_s, "%d ", code);
+    char codeString[LONG_STRING] = {0};
+    sprintf(codeString, "%d ", code);
     if (code == 200) {
-        code_s = strcat(code_s, "OK\n");
+        strcat(codeString, "OK\n");
     } else if (code == 301) {
-        code_s = strcat(code_s, "Move Permanently\n");
+        strcat(codeString, "Move Permanently\n");
     } else if (code == 400) {
-        code_s = strcat(code_s, "Bad Request\n");
+        strcat(codeString, "Bad Request\n");
     } else if (code == 403) {
-        code_s = strcat(code_s, "Forbidden\n");
+        strcat(codeString, "Forbidden\n");
     } else if (code == 404) {
-        code_s = strcat(code_s, "Not Found\n");
+        strcat(codeString, "Not Found\n");
     } else if (code == 500) {
-        code_s = strcat(code_s, "Internal Server Error\n");
+        strcat(codeString, "Internal Server Error\n");
     }
-    return code_s;
+    return codeString;
 
 }
 
 int http_method(char *request, int fd)
 {
     int length, write_err;
-    char *method, *path, *content, *response, *format, *mime;
+    char *method, *path, *content, *response, *format;
+    char mime[64] = {0};
     method = strtok(request, " ");
     path = strtok(NULL, " ");
-    char *filename = (char *)calloc(strlen(path), sizeof(char));
+    // char *filename = (char *)calloc(strlen(path), sizeof(char));
+    char filename[LONG_STRING] = {0};
     strcpy(filename, path);
 
     /*
@@ -69,14 +76,16 @@ int http_method(char *request, int fd)
      */
     format = strtok(filename, ".");
     format = strtok(NULL, ".");
+
     /*
      * Extract the mime type out of the previous format.
      */
-    mime = mime_type(format);
+    mime_type(format, mime);
+
     printf("%s %s %s %s\n\n", method, path, format, mime);
 
     if (strcmp(method, "GET") == 0) {
-         write_err = http_get(path, mime, fd);
+        write_err = http_get(path, mime, fd);
     }
     return write_err;
 }
@@ -84,23 +93,27 @@ int http_method(char *request, int fd)
 int http_get(char *path, char *mime, int fd)
 {
     int length = 0, write_err = 0;
-    char *filename = (char *)calloc(strlen(path), sizeof(char));
+    // char *filename = (char *)calloc(strlen(path), sizeof(char));
+    char filename[LONG_STRING] = {0};
     /*
      * Check the path requested is empty or not and return "index.html" by
      * default if yes.
      */
     if (strcmp(path, "/") == 0) {
-        filename = (char *)realloc(filename, strlen("index.html")*sizeof(char));
-        filename = strcpy(filename, "index.html");
+        // filename = (char *)realloc(filename, strlen("index.html")*sizeof(char));
+        strcpy(filename, "index.html");
     } else {
         /*
          * Passing path+1 as argument to ignore the initial "/"
          */
-        filename = strcpy(filename, path+1);
+        strcpy(filename, path+1);
     }
 
     FILE *file = fopen(filename, "r");
 
+    if (file == NULL) {
+        return -1;
+    }
     length = get_file_size(file);
 
     char *content;
