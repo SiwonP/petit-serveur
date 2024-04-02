@@ -4,3 +4,8 @@ build
 
 .vscode
 .swp
+*.a
+*.o
+*.bc
+*.so
+*.pc
