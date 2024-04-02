@@ -91,6 +91,10 @@ int main(int argc, char const *argv[])
 		printf("%s\n", method);
 		printf("%s\n", path);
 
+		char response[] = "HTTP/1.1 200 Ok\r\n";
+
+		write(connfd, response, strlen(response));
+
 		close(connfd);
 	}
 }
