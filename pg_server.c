@@ -1,7 +1,9 @@
 #include <postgres.h>
 #include <fmgr.h>
 #include "executor/spi.h"
+#include "funcapi.h"
 
+#include "utils/builtins.h"
 #include <utils/numeric.h>
 #include <unistd.h>
 #include <pthread.h>
@@ -11,125 +13,131 @@
 #include <arpa/inet.h>
 #include <stdio.h>
 
+#include "src/server.h"
+
 #ifdef PG_MODULE_MAGIC
 PG_MODULE_MAGIC;
 #endif
 
-// void start_accept(int port)
-// {
-// 	int serverfd = 0;
-// 	int connfd = 0;
-// 	int size;
-// 	struct sockaddr_in servin;
-// 	// struct sockaddr_in cliin;
-// 	char buffer[4096] = {0};
-// 	char response[] = "HTTP/1.1 200 Ok\r\n";
 
-// 	servin.sin_family = AF_INET;
-// 	servin.sin_port = htons(port);
-// 	servin.sin_addr.s_addr = INADDR_ANY;
-// 	memset(servin.sin_zero, '\0', sizeof servin.sin_zero);
-
-// 	if((serverfd = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
-// 		perror("In socket");
-// 		exit(EXIT_FAILURE);
-// 	}
-
-// 	if((bind(serverfd, (struct sockaddr *)&servin, sizeof(servin))) < 0) {
-// 		perror("In bind");
-// 		exit(EXIT_FAILURE);
-// 	}
-
-// 	if((listen(serverfd, 10)) < 0) {
-// 		perror("In listen");
-// 		exit(EXIT_FAILURE);
-// 	}
-
-// 	size = sizeof(servin);
-// 	connfd = accept(serverfd, (struct sockaddr *)&servin,(socklen_t*)&size);
-	
-// 	read(connfd, buffer, sizeof(buffer));
-
-// 	write(connfd, response, strlen(response));
-
-// 	close(connfd);
-    
-// }
-
-PG_FUNCTION_INFO_V1(start);
-
-Datum start(PG_FUNCTION_ARGS) {
-
-	int port = 8080;
-
-	int serverfd = 0;
-	int connfd = 0;
-	int size;
-	struct sockaddr_in servin;
-	// struct sockaddr_in cliin;
-	char buffer[4096] = {0};
-	char response[] = "HTTP/1.1 200 Ok\r\n";
-
-	int e;
-
-	int spiconn;
+void get_ports(int **ports, int *counter)
+{
+	//query SQL
 	char query[] = "select port from http_server.server;";
+	// result of the query : successful or not
 	int query_result;
 
-	servin.sin_family = AF_INET;
-	servin.sin_port = htons(port);
-	servin.sin_addr.s_addr = INADDR_ANY;
-	memset(servin.sin_zero, '\0', sizeof servin.sin_zero);
 
-	if((serverfd = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
-		perror("In socket");
-		exit(EXIT_FAILURE);
-	}
-
-	if((bind(serverfd, (struct sockaddr *)&servin, sizeof(servin))) < 0) {
-		perror("In bind");
-		exit(EXIT_FAILURE);
-	}
-
-	if((listen(serverfd, 10)) < 0) {
-		perror("In listen");
-		exit(EXIT_FAILURE);
-	}
-
-	size = sizeof(servin);
-	connfd = accept(serverfd, (struct sockaddr *)&servin,(socklen_t*)&size);
-	
-	e = read(connfd, buffer, sizeof(buffer));
-
-	e = write(connfd, response, strlen(response));
-	if(e <= 0) {
-		perror("In writing");
-		exit(EXIT_FAILURE);
-	}
-
-	close(connfd);
-
-	spiconn = SPI_connect();
-	if (spiconn != SPI_OK_CONNECT) {
-		perror("In SPI connect");
-	}
-
+	// Execute the query itself
 	query_result = SPI_execute(query, true, 0);
 	if(query_result == SPI_OK_SELECT) {
+
         TupleDesc tupdesc = SPI_tuptable->tupdesc;
         SPITupleTable *tuptable = SPI_tuptable;
+
+		char buf[8192] = {0};
 		int j = 0;
 
 		for (j = 0; j < tuptable->numvals; j++) {
-			
+			HeapTuple tuple = tuptable->vals[j];
+			char *port = NULL;
+
+			elog(WARNING, "number of values %ld", tuptable->numvals);
+
+			port = SPI_getvalue(tuple, tupdesc, 1);
+			*(*ports+j) = atoi(port);
+			elog(WARNING, "EXECQ: %s", port);
 		}
+
+		*counter = tuptable->numvals;
 		
 	} else {
+		// if not ok, result in error:
+		// TODO use the error loggin of pg
 		perror("In SPI_execute");
 
 	}
 	
 	SPI_finish();
-	PG_RETURN_INT32(1);
+}
 
+PG_FUNCTION_INFO_V1(start_http_server);
+
+Datum start_http_server(PG_FUNCTION_ARGS)
+{
+	int port = PG_GETARG_INT32(0);
+	int res = 0;
+	elog(WARNING, "port = %d", port);
+	res = start_server(port);
+}
+
+PG_FUNCTION_INFO_V1(start);
+
+Datum start(PG_FUNCTION_ARGS) {
+
+	// close(connfd);
+	// FuncCallContext  *funcctx;
+	// Datum result;
+
+    FuncCallContext     *funcctx;
+	int *ports;
+	int counter = 0;
+
+    if (SRF_IS_FIRSTCALL())
+    {
+        MemoryContext oldcontext;
+
+        funcctx = SRF_FIRSTCALL_INIT();
+        oldcontext = MemoryContextSwitchTo(funcctx->multi_call_memory_ctx);
+        /* One-time setup code appears here: */
+
+		
+		// descriptor of the connection
+		int spiconn;
+		
+		// Connect to de server programming interface of pg
+		spiconn = SPI_connect();
+		if (spiconn != SPI_OK_CONNECT) {
+			// if not ok, result in error
+			// TODO use the error loggin of pg
+			perror("In SPI connect");
+		}
+		ports = SPI_palloc(16);
+
+		get_ports(&ports, &counter);
+
+        funcctx->max_calls = counter;
+
+        // if returning composite
+            // build TupleDesc, and perhaps AttInMetadata
+        // endif returning composite
+        // user code
+        funcctx->user_fctx = ports;
+
+        MemoryContextSwitchTo(oldcontext);
+    }
+
+    /* Each-time setup code appears here: */
+    // user code
+    funcctx = SRF_PERCALL_SETUP();
+    ports = (int *)funcctx->user_fctx;
+
+    /* this is just one way we might test whether we are done: */
+    if (funcctx->call_cntr < funcctx->max_calls)
+    {
+        /* Here we want to return another item: */
+        Datum        *values;
+        HeapTuple    tuple;
+        Datum        result;
+
+		result = (Datum) ports[funcctx->call_cntr];
+        // obtain result Datum
+        SRF_RETURN_NEXT(funcctx, result);
+    }
+    else
+    {
+        /* Here we are done returning items, so just report that fact. */
+        /* (Resist the temptation to put cleanup code here.) */
+        SRF_RETURN_DONE(funcctx);
+    }
 }

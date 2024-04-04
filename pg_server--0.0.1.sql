@@ -48,9 +48,12 @@ BEGIN
 END 
 $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION http_server.start_server(port integer)
+RETURNS INT AS 'pg_server', 'start_http_server'
+LANGUAGE C STRICT;
 
 CREATE OR REPLACE FUNCTION http_server.start()
-RETURNS int AS 'pg_server', 'start'
+RETURNS SETOF INT AS 'pg_server', 'start'
 LANGUAGE C STRICT;
 
 -- Grant execute permission to public (change to appropriate roles if needed)
