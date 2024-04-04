@@ -1,7 +1,7 @@
 MODULE_big = pg_server
 EXTENSION = pg_server     # the extersion's name
 DATA = pg_server--0.0.1.sql    # script file to install
-OBJS = pg_server.o
+OBJS = pg_server.o src/server.o src/http_parser.o
 # REGRESS = get_sum_test      # the test script file
 
 # for posgres build
