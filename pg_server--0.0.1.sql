@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS http_server.server (
 CREATE TABLE IF NOT EXISTS http_server.path (
     id serial primary key,
     id_api int,
+    method varchar,
     path varchar,
     command varchar
 );
@@ -43,8 +44,9 @@ AS $$
 DECLARE 
     cmd text;
 BEGIN
-    SELECT p.command into cmd from http_server.path p join http_server.api a on p.id_api = a.id where a.port = $2 and p.path = $1;
+    SELECT p.command into cmd from http_server.path p join http_server.server a on p.id_api = a.id where a.port = $2 and p.path = $1;
     RETURN (EXECUTE '$1' USING cmd);
+    -- RETURN (cmd);
 END 
 $$ LANGUAGE plpgsql;
 
