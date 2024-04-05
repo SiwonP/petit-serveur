@@ -4,8 +4,8 @@
  * @author Simon Petit
  */
 
-#ifndef HTTP_PARSER
-#define HTTP_PARSER
+#ifndef HTTP_PARSER_H
+#define HTTP_PARSER_H
 
 #include <stdlib.h>
 
@@ -22,12 +22,6 @@ char *parse_path(char *buffer, char *path);
 char *parse_method(char *buffer, char *method);
 
 char *parse_version(char *buffer, char *version);
-
-long parse_ws(char *buffer);
-
-long parse_cr(char *buffer);
-
-long parse_lf(char *buffer);
 
 /**
  * @brief Reads a header name in a string. Stop criteria is when the read char is ':'.
@@ -84,7 +78,6 @@ char *take_while(char *buffer, char *dst, char (*criteria)(char *buffer));
  */
 char *take_until(char *buffer, char *dst, char (*criteria)(char *buffer));
 
-
 /**
  * @brief According to a criteria function, ignore the char matching the criteria.  
  *
@@ -95,13 +88,33 @@ char *take_until(char *buffer, char *dst, char (*criteria)(char *buffer));
  */
 char *drop_while(char *buffer, char (*criteria)(char *buffer));
 
+char *drop_n_times(char *buffer, int n, char (*criteria)(char *buffer));
+
 /**
+ * @brief Return whether the char pointed matches ' '
  * 
+ * @param[in] buffer The pointer of the char to read.
+ * 
+ * @return 1 if matched else 0 
 */
 char match_ws(char *buffer);
 
+/**
+ * @brief Return whether the char pointed matches ':'
+ * 
+ * @param[in] buffer The pointer of the char to read.
+ * 
+ * @return 1 if matched else 0 
+*/
 char match_colon(char *buffer);
 
+/**
+ * @brief Return whether the char pointed matches '\r' or '\n'
+ * 
+ * @param[in] buffer The pointer of the char to read.
+ * 
+ * @return 1 if matched else 0 
+*/
 char match_crlf(char *buffer);
 
 #endif

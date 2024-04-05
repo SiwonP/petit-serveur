@@ -9,21 +9,6 @@
 
 #include "http_parser.h"
 
-long parse_ws(char *buffer)
-{
-   return *buffer == ' ' ? (long)(buffer+1) : (long)-1 ;
-}
-
-long parse_cr(char *buffer)
-{
-	return *buffer == '\r' ? (long)(buffer+1) : (long)-1;
-}
-
-long parse_lf(char *buffer)
-{
-	return *buffer == '\n' ? (long)(buffer+1) : (long)-1;
-}
-
 char *parse_method(char *buffer, char *method) 
 {
 
@@ -48,6 +33,7 @@ char *parse_method(char *buffer, char *method)
 	return result;
 }
 
+// TODO: rework with take_until or take_while
 char *parse_path(char *buffer, char *path) {
 	int i = 0;
 	while (*(buffer+i) != ' ') {
@@ -85,8 +71,9 @@ char *parse_header_name(char * buffer, char* name)
 
 char *parse_header_value(char *buffer, char *value)
 {
+	char *buf;
 	memset(value, '\0', strlen(value));
-	char *buf = drop_while(buffer, &match_ws);
+	buf = drop_while(buffer, &match_ws);
 	buf = take_until(buf, value, &match_crlf);
 	return buf;
 }
@@ -104,8 +91,8 @@ char *parse_header(char *buffer, char *header_name, char *header_value)
 int parse_headers(char *buffer, char *header_names[], char *header_values[])
 {
 	int i = 0;
-	char *buf;
-	buf = parse_header_value(buffer, header_names[0]);
+	// char *buf;
+	// buf = parse_header_value(buffer, header_names[0]);
 	// buf = parse_header(buffer, header_names[i], header_values[i]);
 
 	return i;
@@ -138,6 +125,15 @@ char *drop_while(char *buffer, char (*criteria)(char *buffer))
 		i++;
 	}
 	// strncpy(dst, buffer+i, strlen(buffer) - i);
+	return buffer + i;
+}
+
+char *drop_n_times(char *buffer, int n, char (*criteria)(char *buffer))
+{
+	int i = 0;
+	while( (*criteria)(buffer + i) && i < n ) {
+		i++;
+	}
 	return buffer + i;
 }
 
