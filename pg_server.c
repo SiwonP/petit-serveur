@@ -1,24 +1,20 @@
-#include <postgres.h>
-#include <fmgr.h>
-#include "executor/spi.h"
-#include "funcapi.h"
-
-#include "utils/builtins.h"
-#include <utils/numeric.h>
-#include <unistd.h>
-#include <pthread.h>
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <stdio.h>
-
-#include "src/server.h"
+#include "pg_server.h"
 
 #ifdef PG_MODULE_MAGIC
 PG_MODULE_MAGIC;
 #endif
 
+void update_state(int port, int state)
+{
+	//query SQL
+	char query[] = "update http_server.server set running = ";
+	// result of the query : successful or not
+	int query_result;
+
+	query_result = SPI_execute(query, false, 0);
+
+	// return query_result;
+}
 
 void get_ports(int **ports, int *counter)
 {
@@ -27,7 +23,6 @@ void get_ports(int **ports, int *counter)
 	// result of the query : successful or not
 	int query_result;
 
-
 	// Execute the query itself
 	query_result = SPI_execute(query, true, 0);
 	if(query_result == SPI_OK_SELECT) {
@@ -35,7 +30,6 @@ void get_ports(int **ports, int *counter)
         TupleDesc tupdesc = SPI_tuptable->tupdesc;
         SPITupleTable *tuptable = SPI_tuptable;
 
-		char buf[8192] = {0};
 		int j = 0;
 
 		for (j = 0; j < tuptable->numvals; j++) {
@@ -55,33 +49,35 @@ void get_ports(int **ports, int *counter)
 		// if not ok, result in error:
 		// TODO use the error loggin of pg
 		perror("In SPI_execute");
-
 	}
 	
-	SPI_finish();
 }
 
 PG_FUNCTION_INFO_V1(start_http_server);
 
 Datum start_http_server(PG_FUNCTION_ARGS)
 {
+	pthread_t http_server_thread;
 	int port = PG_GETARG_INT32(0);
 	int res = 0;
-	elog(WARNING, "port = %d", port);
-	res = start_server(port);
+	// elog(INFO, "port = %d", port);
+	// res = start_server(port);
+	res = pthread_create(&http_server_thread, NULL, start_server, (void*) port);
+
+	PG_RETURN_INT16(res);
 }
 
 PG_FUNCTION_INFO_V1(start);
 
-Datum start(PG_FUNCTION_ARGS) {
-
-	// close(connfd);
-	// FuncCallContext  *funcctx;
-	// Datum result;
-
+Datum start(PG_FUNCTION_ARGS)
+{
     FuncCallContext     *funcctx;
+	// array of ports registered in the table
 	int *ports;
+	// counter for the number of ports (or rows)
 	int counter = 0;
+	// Connection's descriptor to the SPI
+	int spiconn;
 
     if (SRF_IS_FIRSTCALL())
     {
@@ -89,11 +85,6 @@ Datum start(PG_FUNCTION_ARGS) {
 
         funcctx = SRF_FIRSTCALL_INIT();
         oldcontext = MemoryContextSwitchTo(funcctx->multi_call_memory_ctx);
-        /* One-time setup code appears here: */
-
-		
-		// descriptor of the connection
-		int spiconn;
 		
 		// Connect to de server programming interface of pg
 		spiconn = SPI_connect();
@@ -105,20 +96,15 @@ Datum start(PG_FUNCTION_ARGS) {
 		ports = SPI_palloc(16);
 
 		get_ports(&ports, &counter);
+		SPI_finish();
 
         funcctx->max_calls = counter;
-
-        // if returning composite
-            // build TupleDesc, and perhaps AttInMetadata
-        // endif returning composite
-        // user code
         funcctx->user_fctx = ports;
 
         MemoryContextSwitchTo(oldcontext);
     }
 
     /* Each-time setup code appears here: */
-    // user code
     funcctx = SRF_PERCALL_SETUP();
     ports = (int *)funcctx->user_fctx;
 
@@ -126,8 +112,8 @@ Datum start(PG_FUNCTION_ARGS) {
     if (funcctx->call_cntr < funcctx->max_calls)
     {
         /* Here we want to return another item: */
-        Datum        *values;
-        HeapTuple    tuple;
+        // Datum        *values;
+        // HeapTuple    tuple;
         Datum        result;
 
 		result = (Datum) ports[funcctx->call_cntr];
