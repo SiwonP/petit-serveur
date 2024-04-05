@@ -9,3 +9,5 @@ build
 *.bc
 *.so
 *.pc
+
+test/test
