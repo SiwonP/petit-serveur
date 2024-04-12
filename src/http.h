@@ -13,6 +13,25 @@
 
 #include "file.h"
 
+struct http_response {
+    int code;
+	char *version;
+	char **headers_name;
+	char **headers_value;
+	char *body;
+};
+
+struct http_request {
+	char *method;
+	char *version;
+	char *path;
+	char **params;
+	char **params_value;
+	char **headers_name;
+	char **headers_value;
+	char *body;
+};
+
 
 /**
  * @brief Construct the header of the http response.
