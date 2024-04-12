@@ -9,3 +9,20 @@ void fetch_command(char *method, char *path, char *command)
 	strncpy(command, query, strlen(query));
 	// SPI_finish();
 }
+
+char match_question(char *buffer)
+{
+	return *buffer == '?' ? 1 : 0 ;
+}
+
+char match_ampersand(char *buffer)
+{
+	return *buffer == '&' ? 1 : 0;
+}
+
+void parse_url(char *url, char *path, char *param, char *param_value)
+{
+	char *buffer;
+	buffer = take_until(url, &match_question);
+	
+}
